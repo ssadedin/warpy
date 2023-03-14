@@ -118,7 +118,7 @@ make_clair3_chunks = {
     
     def chunks = 
         file(output)
-            .readLines()*.tokenize().take(3)
+            .readLines()*.tokenize() // .take(3)
             .collectEntries { [it[1], [chr: it[0], chunk_id:it[1], total_chunks:it[2]]] }
     
     println "Forwarding ${chunks.size()} chunks (first 10): " + chunks.take(10)
