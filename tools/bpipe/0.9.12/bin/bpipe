@@ -25,7 +25,7 @@ VERSION=0.9.12
 # Build date as an integer (unix epoch time)
 # This should be 0 in the source tree, 
 # it will be replaced by the build script at build time
-BUILDDATE=1678684087953
+BUILDDATE=1678807159575
 
 # Default memory used
 # Mainly here to limit memory on systems with very large memory
@@ -634,6 +634,7 @@ then
     shift 1
     COMMAND="run"
     MODEFLAG="-Dbpipe.mode=dev"
+    LAUNCH_IN_FOREGROUND=true 
 elif [ "$COMMAND" == "diagram" ];
 then
     shift 1
@@ -716,7 +717,8 @@ set -f
 
 if $LAUNCH_IN_FOREGROUND ;
 then
-    LOG_CAPTURE="2>&1 | tee .bpipe/logs/\$\$.log"
+    true
+    #LOG_CAPTURE="2>&1 | tee .bpipe/logs/\$\$.log"
 else
     LOG_CAPTURE='> .bpipe/logs/$$.log 2>&1'
 fi
