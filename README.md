@@ -4,8 +4,8 @@ WARPY
 
 Warpy is a long read sequencing workflow written in Bpipe. The 
 name "warpy" derives from "War and Peace" which is a very famous long read. 
-However Warpy is not original; it is a port of the official Oxford Nanopore
-Nextflow Pipeline which can be found on nf-core.
+However Warpy is not original; it is a port of the official [Oxford Nanopore
+Nextflow Pipeline](https://github.com/epi2me-labs/wf-human-variation).
 
 Setup
 -----
@@ -16,6 +16,9 @@ which are usually straight forward.
 
 To do this, open the `src/bpipe.config` file and search for all lines containing "SETME"
 and add in appropriate values.
+
+You will also want to configure your compute resources (eg: scheduler or cloud compute system, etc)
+by following standard Bpipe configuration steps for these.
 
 Running
 -------
@@ -29,5 +32,7 @@ bpipe run /path/to/warpy/src/pipeline.groovy -fast5_dir /path/to/fast5/data -sam
 Credits
 -------
 
-Warpy is entirely based on the Nextflow pipeline found in the nf-core repository. All credits
-belong to the team who created that pipeline.
+Warpy is entirely based on the official [Epi2Me Nextflow pipeline](https://github.com/epi2me-labs/wf-human-variation) found 
+in the nf-core repository. All credits belong to the team who created that pipeline. Warpy also reuses most of the 
+docker containers from the wf-human-variation pipeline, representing much of the overall work and value.
+
