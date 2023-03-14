@@ -41,48 +41,7 @@ init = {
     }
 }
 
-dorado = {
 
-    output.dir='dorado/' + file(input.fast5.prefix).name
-    
-    uses(dorados: 1) {
-        exec """
-            set -o pipefail
-
-            ln -s ${file(input.fast5).absolutePath} $output.dir/${file(input.fast5).name}
-
-            $tools.DORADO basecaller $DRD_MODELS_PATH/$params.drd_model $output.dir | $tools.SAMTOOLS view -b -o $output.ubam -
-        """
-    }
-}
-
-make_mmi = {
-    output.dir = 'ref'
-
-    produce('ref.mmi') {
-        exec """
-            $tools.MINIMAP2 -t ${threads} -x map-ont -d $output ${REF}
-        """
-    }
-}
-
-minimap2_align = {
-    
-    def SAMTOOLS = tools.SAMTOOLS
-    
-    output.dir = 'align'
-
-    exec """
-        $SAMTOOLS bam2fq -@ $threads -T 1 $input.ubam
-            | $tools.MINIMAP2 -y -t $threads -ax map-ont $input.mmi - 
-            | $SAMTOOLS sort -@ $threads
-            | tee >($SAMTOOLS view -e '[qs] < $calling.qscore_filter' -o $output.fail.bam - )
-            | $SAMTOOLS view -e '[qs] >= $calling.qscore_filter' -o $output.pass.bam -
-
-        $SAMTOOLS index $output.pass.bam
-
-    """
-}
 
 run(input_files) {
     init + 
@@ -102,23 +61,3 @@ run(input_files) {
     ]
     
 }
-
-
-/*
-
-```plantuml
-
-component MCRI {
-    database "IBM SpecScale Storage" as IBM
-    node Meerkat
-}
-
-cloud "Google Cloud" as GC {
-    database "Google Cloud Storage" as GCS
-}
-
-IBM -> GCS : Copied using Google Cloud\ncommand line utilities
-
-```
-
-*/
