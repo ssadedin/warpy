@@ -7,6 +7,14 @@ name "warpy" derives from "War and Peace" which is a very famous long read.
 However Warpy is not original; it is a port of the official [Oxford Nanopore
 Nextflow Pipeline](https://github.com/epi2me-labs/wf-human-variation).
 
+Currently Warpy supports the following arms of the wf-human-variation pipeline:
+
+- Basecalling from FAST5
+- SNV/indel calling 
+- SV calling
+
+Methylation calling is not yet implemented.
+
 Setup
 -----
 
