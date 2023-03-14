@@ -34,7 +34,7 @@ Running
 Run warpy like so:
 
 ```
-bpipe run /path/to/warpy/src/pipeline.groovy -fast5_dir /path/to/fast5/data -sample TEST_SAMPLE -targets target_regions.bed
+/path/to/warpy/tools/bpipe/0.9.12/bin/bpipe run /path/to/warpy/src/pipeline.groovy -fast5_dir /path/to/fast5/data -sample TEST_SAMPLE -targets target_regions.bed
 ```
 
 Credits
