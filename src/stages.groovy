@@ -1,4 +1,48 @@
 
+
+merge_pass_calls = {
+
+    output.dir = 'align'
+
+    produce(opts.sample + '.pass.bam') {
+        exec """
+            $tools.SAMTOOLS merge $output.bam $inputs.pass.bam 
+            -f 
+            --no-PG 
+            --write-index 
+            --reference $REF 
+            --threads 4
+        """
+    }
+}
+
+mosdepth = {
+   
+    output.dir = 'qc/mosdepth'
+    
+    produce("${opts.sample}.regions.bed.gz",
+            "${opts.sample}.mosdepth.global.dist.txt",
+            "${opts.sample}.thresholds.bed.gz") {
+
+        exec """
+            export REF_PATH=$REF
+
+            export MOSDEPTH_PRECISION=3
+
+            mosdepth 
+            -x 
+            -t $threads
+            -b $opts.targets
+            --thresholds 1,10,20,30
+            --no-per-base
+            $output.dir/${opts.sample}
+            $input.bam
+        """
+    }
+}
+
+
+
 make_clair3_chunks = {
 
     output.dir = 'clair_output/tmp' 

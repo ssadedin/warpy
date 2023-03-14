@@ -26,6 +26,7 @@ if(clair3_model.clair3_model_name == '-')
 targets = bed(opts.targets)
 
 load 'stages.groovy'
+load 'sv_calling.groovy'
     
 init = {
     println "\nProcessing ${input_files.size()} input fast5 files ...\n"
@@ -41,16 +42,18 @@ init = {
 }
 
 dorado = {
-    
+
     output.dir='dorado/' + file(input.fast5.prefix).name
     
-    exec """
-        set -o pipefail
+    uses(dorados: 1) {
+        exec """
+            set -o pipefail
 
-        ln -s ${file(input.fast5).absolutePath} $output.dir/${file(input.fast5).name}
+            ln -s ${file(input.fast5).absolutePath} $output.dir/${file(input.fast5).name}
 
-        $tools.DORADO basecaller $DRD_MODELS_PATH/$params.drd_model $output.dir | $tools.SAMTOOLS view -b -o $output.ubam -
-    """
+            $tools.DORADO basecaller $DRD_MODELS_PATH/$params.drd_model $output.dir | $tools.SAMTOOLS view -b -o $output.ubam -
+        """
+    }
 }
 
 make_mmi = {
@@ -81,26 +84,23 @@ minimap2_align = {
     """
 }
 
-forward_pass = {
-    forward input.pass.bam
-}
-
-
 run(input_files) {
     init + 
-    make_mmi + '%.fast5' * [ dorado + minimap2_align ] + 
-    forward_pass +
-    make_clair3_chunks  * [ pileup_variants ] + aggregate_pileup_variants +
-     [ 
-         get_qual_filter,
-         chr(1..22, 'X','Y') * [ 
-             select_het_snps + 
-             phase_contig + 
-             create_candidates + '%.bed' * [ evaluate_candidates ] ] 
-     ] + aggregate_full_align_variants +
-     chr(1..22, 'X','Y') *  [ merge_pileup_and_full_vars ] + aggregate_all_variants
-
-
+    make_mmi + '%.fast5' * [ dorado + minimap2_align ] + merge_pass_calls +
+    [
+        snp_calling : make_clair3_chunks  * [ pileup_variants ] + aggregate_pileup_variants +
+             [ 
+                 get_qual_filter,
+                 chr(1..22, 'X','Y') * [ 
+                     select_het_snps + 
+                     phase_contig + 
+                     create_candidates + '%.bed' * [ evaluate_candidates ] ] 
+             ] + aggregate_full_align_variants +
+             chr(1..22, 'X','Y') *  [ merge_pileup_and_full_vars ] + aggregate_all_variants,
+             
+         sv_calling: mosdepth + filterBam + sniffles2 + filter_sv_calls
+    ]
+    
 }
 
 
