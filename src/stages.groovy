@@ -9,7 +9,7 @@ dorado = {
 
             ln -s ${file(input.fast5).absolutePath} $output.dir/${file(input.fast5).name}
 
-            $tools.DORADO basecaller $DRD_MODELS_PATH/$params.drd_model $output.dir | $tools.SAMTOOLS view -b -o $output.ubam -
+            $tools.DORADO basecaller $DRD_MODELS_PATH/$model.params.drd_model $output.dir | $tools.SAMTOOLS view -b -o $output.ubam -
         """
     }
 }
@@ -79,6 +79,15 @@ mosdepth = {
             --no-per-base
             $output.dir/${opts.sample}
             $input.bam
+        """
+    }
+}
+
+read_stats = {
+
+    produce("${opts.sample}.readstats.tsv.gz") {
+        exec """
+            bamstats --threads 3 $input.bam | gzip > $output.gz
         """
     }
 }
@@ -177,7 +186,6 @@ aggregate_pileup_variants = {
                 --sampleName $opts.sample
                 --ref_fn $REF
 
-            # TODO: this is a little silly: it can take a non-trivial amount of time
             if [ "\$( bgzip -@ $threads -fdc $output.vcf.gz | grep -v '#' | wc -l )" -eq 0 ]; 
             then echo "[INFO] Exit in pileup variant calling"; exit 1; fi
 

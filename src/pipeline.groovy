@@ -5,6 +5,7 @@ options {
     fast5_dir 'Directory containig FAST5 files', args:1, type: File, required: true
     sample 'Name of sample', args:1, type: String, required: true
     targets 'Target regions to call variants in', args:1, type: File, required: true
+    sex 'Sample sex (required for STR analysis)', args:1, type: String, required: true
 }
 
 List input_files = opts.fast5_dir.listFiles().grep { it.name.endsWith('.fast5') }
@@ -13,6 +14,8 @@ List input_files = opts.fast5_dir.listFiles().grep { it.name.endsWith('.fast5') 
 Map params = model.params
 
 DRD_MODELS_PATH="$BASE/models"
+
+VERSION="1.0"
 
 // Convert basecaller model to Clair3 model
 model_map_file = "$BASE/data/clair3_models.tsv"
@@ -27,25 +30,24 @@ targets = bed(opts.targets)
 
 load 'stages.groovy'
 load 'sv_calling.groovy'
+load 'str_calling.groovy'
     
 init = {
     println "\nProcessing ${input_files.size()} input fast5 files ...\n"
     println "\nUsing base calling model: $params.drd_model"
     println "\nUsing clair3 model: $clair3_model"
     
-    output.dir = "cram_cache"
-    produce('cram_cache_init.txt') {
+    produce('versions.txt') {
         exec """
-            date > $output.txt
+            echo $VERSION > versions.txt
         """
     }
 }
 
 
-
 run(input_files) {
     init + 
-    make_mmi + '%.fast5' * [ dorado + minimap2_align ] + merge_pass_calls +
+    make_mmi + '%.fast5' * [ dorado + minimap2_align ] + merge_pass_calls + read_stats +
     [
         snp_calling : make_clair3_chunks  * [ pileup_variants ] + aggregate_pileup_variants +
              [ 
@@ -57,7 +59,10 @@ run(input_files) {
              ] + aggregate_full_align_variants +
              chr(1..22, 'X','Y') *  [ merge_pileup_and_full_vars ] + aggregate_all_variants,
              
-         sv_calling: mosdepth + filterBam + sniffles2 + filter_sv_calls
+         sv_calling: mosdepth + filterBam + sniffles2 + filter_sv_calls,
+         
+         str_calling: chr(1..22, 'X','Y') *  [ call_str + annotate_repeat_expansions ] + 
+             merge_str_tsv + merge_str_vcf
     ]
     
 }
