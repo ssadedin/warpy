@@ -5,7 +5,7 @@ WARPY
 Warpy is a long read sequencing workflow written in Bpipe. The 
 name "warpy" derives from "War and Peace" which is a very famous long read. 
 However Warpy is not original; it is a port of the official [Oxford Nanopore
-Nextflow Pipeline](https://github.com/epi2me-labs/wf-human-variation).
+Nextflow Human Variation Pipeline](https://github.com/epi2me-labs/wf-human-variation).
 
 Currently Warpy supports the following arms of the wf-human-variation pipeline:
 
@@ -40,7 +40,6 @@ Run warpy like so:
 Credits
 -------
 
-Warpy is entirely based on the official [Epi2Me Nextflow pipeline](https://github.com/epi2me-labs/wf-human-variation) found 
-in the nf-core repository. All credits belong to the team who created that pipeline. Warpy also reuses most of the 
-docker containers from the wf-human-variation pipeline, representing much of the overall work and value.
+Warpy is entirely based on the official [Epi2Me Nextflow pipeline](https://github.com/epi2me-labs/wf-human-variation), including direct use of many of the docker containers. All credits belong to the team who created that pipeline, and any bugs or introduced differences or issues lie entirely outside their responsibility.
 
+**NOTE**: this pipeline was created in part as a learning exercise and also as an alternative for people who have a strong preference for using Bpipe to process their Nanopore data. If you are generically interested in processing Nanopore data outside of this context, please first check out the official pipeline rather than this fork!

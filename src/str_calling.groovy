@@ -61,20 +61,13 @@ merge_str_tsv = {
 
 merge_str_vcf = {
 
-    // merge the contig VCFs
-//    input:
-//        path (vcfs)
-//        path (vcf_indexes)
-//    output:
-//        tuple path ("*str.vcf.gz"), path("*str.vcf.gz.tbi"), emit: final_vcf
-
     output.dir = 'str'
 
     produce("${opts.sample}.wf_str.vcf.gz") {
         exec """
             bcftools concat $inputs.vcf.gz > $output.vcf.gz.prefix
 
-            bgzip $output.vcf.gz.prefix
+            bgzip -f $output.vcf.gz.prefix
 
             tabix $output.vcf.gz
         """
