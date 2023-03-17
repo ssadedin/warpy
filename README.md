@@ -9,7 +9,7 @@ Nextflow Human Variation Pipeline](https://github.com/epi2me-labs/wf-human-varia
 
 Currently Warpy supports the following arms of the wf-human-variation pipeline:
 
-- Basecalling from FAST5
+- Basecalling from FAST5/Blow5
 - SNV/indel calling 
 - SV calling
 - STR calling
