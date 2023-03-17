@@ -1,15 +1,16 @@
 
 dorado = {
 
-    output.dir='dorado/' + file(input.fast5.prefix).name
+    output.dir='dorado/' + file(input.x5.prefix).name
     
     uses(dorados: 1) {
         exec """
             set -o pipefail
 
-            ln -s ${file(input.fast5).absolutePath} $output.dir/${file(input.fast5).name}
+            ln -fs ${file(input.x5).absolutePath} $output.dir/${file(input.x5).name}
 
-            $tools.DORADO basecaller $DRD_MODELS_PATH/$model.params.drd_model $output.dir | $tools.SAMTOOLS view -b -o $output.ubam -
+            $tools.DORADO basecaller  -b 100 $DRD_MODELS_PATH/$model.params.drd_model $output.dir | 
+                $tools.SAMTOOLS view -b -o $output.ubam -
         """
     }
 }

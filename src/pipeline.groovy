@@ -8,8 +8,12 @@ options {
     sex 'Sample sex (required for STR analysis)', args:1, type: String, required: true
 }
 
-List input_files = opts.fast5_dir.listFiles().grep { it.name.endsWith('.fast5') }
+List input_files = opts.fast5_dir.listFiles().grep { it.name.endsWith('.fast5') || it.name.endsWith('.blow5') }
+input_pattern = input_files.any { it.endsWith('.fast5') } ? '%.fast5' : '%.blow5'
 
+// to make pipeline generic to work for either fast5 or blow5,
+// define virtual file extentions 'x5' that can map to either
+filetype x5 : ['blow5','fast5']
 
 Map params = model.params
 
@@ -31,7 +35,7 @@ targets = bed(opts.targets)
 load 'stages.groovy'
 load 'sv_calling.groovy'
 load 'str_calling.groovy'
-    
+   
 init = {
     println "\nProcessing ${input_files.size()} input fast5 files ...\n"
     println "\nUsing base calling model: $params.drd_model"
@@ -44,10 +48,9 @@ init = {
     }
 }
 
-
 run(input_files) {
     init + 
-    make_mmi + '%.fast5' * [ dorado + minimap2_align ] + merge_pass_calls + read_stats +
+    make_mmi + input_pattern * [ dorado + minimap2_align ] + merge_pass_calls + read_stats +
     [
         snp_calling : make_clair3_chunks  * [ pileup_variants ] + aggregate_pileup_variants +
              [ 
@@ -64,5 +67,4 @@ run(input_files) {
          str_calling: chr(1..22, 'X','Y') *  [ call_str + annotate_repeat_expansions ] + 
              merge_str_tsv + merge_str_vcf
     ]
-    
 }
