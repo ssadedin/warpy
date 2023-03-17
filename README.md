@@ -12,6 +12,7 @@ Currently Warpy supports the following arms of the wf-human-variation pipeline:
 - Basecalling from FAST5
 - SNV/indel calling 
 - SV calling
+- STR calling
 
 Methylation calling is not yet implemented.
 
