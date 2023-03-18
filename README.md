@@ -29,6 +29,10 @@ and add in appropriate values.
 You will also want to configure your compute resources (eg: scheduler or cloud compute system, etc)
 by following standard Bpipe configuration steps for these.
 
+To run basecalling, you also need to download the appropriate basecalling model to match your sequencing
+data and configure it in the `bpipe.config` file. See [here](https://github.com/nanoporetech/dorado#available-basecalling-models)
+for how to acquire the relevant models.
+
 Running
 -------
 
