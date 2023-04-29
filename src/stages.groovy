@@ -150,14 +150,14 @@ pileup_variants = {
         snp_min_af : 0.08,
         indel_min_af : 0.15
     
-    produce("${opts.sample}_${branch.metadata.chr}_${branch.metadata.chunk_id}.vcf") {
+    produce("${opts.sample}_${branch.metadata.chr}_${branch.metadata.chunk_id}.vcf", "${opts.sample}_${branch.metadata.chr}_${branch.metadata.chunk_id}.txt") {
         exec """
             export REF_PATH=cram_cache/%2s/%2s/%s
 
             python \$(which clair3.py) CallVariantsFromCffi
                 --chkpnt_fn \$CLAIR_MODELS_PATH/${clair3_model.clair3_model_name}/pileup
                 --bam_fn $input.bam
-                --call_fn $output.vcf
+                --call_fn $output.vcf.optional
                 --ref_fn $REF
                 --ctgName $branch.metadata.chr
                 --chunk_id $branch.metadata.chunk_id
@@ -172,6 +172,8 @@ pileup_variants = {
                 --gvcf $GVCF
                 --temp_file_dir gvcf_tmp_path
                 --pileup
+
+           echo "`date` : succesfully called variants" > $output.txt
         """
     }
 }
