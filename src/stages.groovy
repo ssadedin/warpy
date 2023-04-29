@@ -64,6 +64,7 @@ mosdepth = {
     output.dir = 'qc/mosdepth'
     
     produce("${opts.sample}.regions.bed.gz",
+            "${opts.sample}.mosdepth.bed",
             "${opts.sample}.mosdepth.global.dist.txt",
             "${opts.sample}.thresholds.bed.gz") {
 
@@ -72,10 +73,12 @@ mosdepth = {
 
             export MOSDEPTH_PRECISION=3
 
+            cut -f 1,2,3 $opts.targets > $output.mosdepth.bed
+
             mosdepth 
             -x 
             -t $threads
-            -b $opts.targets
+            -b $output.mosdepth.bed
             --thresholds 1,10,20,30
             --no-per-base
             $output.dir/${opts.sample}
