@@ -54,8 +54,10 @@ filter_sv_calls = {
 //        def sv_types_joined = params.sv_types.split(',').join(" ")
     
 
-    from('*.regions.bed.gz') produce("${opts.sample}.wf_sv.vcf.gz") {
+    from('*.regions.bed.gz') produce("${opts.sample}.wf_sv.vcf.gz", "${opts.sample}_filter.sh") {
         exec """
+            set -o pipefail
+
             $BASE/scripts/get_filter_calls_command.py 
                 --target_bedfile $opts.targets
                 --vcf $input.vcf
@@ -64,9 +66,9 @@ filter_sv_calls = {
                 --max_sv_length $calling.max_sv_length
                 --sv_types ${calling.sv_types.split(',').join(' ')}
                 --min_read_support $calling.min_read_support
-                --min_read_support_limit $calling.min_read_support_limit > filter.sh
+                --min_read_support_limit $calling.min_read_support_limit > $output.sh
 
-            bash filter.sh > $output.vcf.gz.prefix
+            bash $output.sh > $output.vcf.gz.prefix
 
             vcfsort $input.vcf | bgziptabix $output.vcf.gz
         """
