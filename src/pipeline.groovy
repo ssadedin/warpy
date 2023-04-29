@@ -32,6 +32,10 @@ if(clair3_model.clair3_model_name == '-')
 
 targets = bed(opts.targets)
 
+str_chrs = new File(calling.repeats_bed).readLines()*.tokenize()*.getAt(0).unique()
+
+println "The chromosomes for STR calling are: $str_chrs"
+
 load 'stages.groovy'
 load 'sv_calling.groovy'
 load 'str_calling.groovy'
@@ -52,19 +56,18 @@ run(input_files) {
     init + 
     make_mmi + input_pattern * [ dorado + minimap2_align ] + merge_pass_calls + read_stats +
     [
-        snp_calling : make_clair3_chunks  * [ pileup_variants ] + aggregate_pileup_variants +
-             [ 
-                 get_qual_filter,
-                 chr(1..22, 'X','Y') * [ 
-                     select_het_snps + 
-                     phase_contig + 
-                     create_candidates + '%.bed' * [ evaluate_candidates ] ] 
-             ] + aggregate_full_align_variants +
-             chr(1..22, 'X','Y') *  [ merge_pileup_and_full_vars ] + aggregate_all_variants,
+         snp_calling : make_clair3_chunks  * [ pileup_variants ] + aggregate_pileup_variants +
+         [ 
+                get_qual_filter,
+                chr(1..22, 'X','Y') * [
+                    select_het_snps +
+                    phase_contig +
+                    create_candidates + '%.bed' * [ evaluate_candidates ] ]
+         ] + aggregate_full_align_variants +
+            chr(1..22, 'X','Y') *  [ merge_pileup_and_full_vars ] + aggregate_all_variants,
              
          sv_calling: mosdepth + filterBam + sniffles2 + filter_sv_calls,
          
-         str_calling: chr(1..22, 'X','Y') *  [ call_str + annotate_repeat_expansions ] + 
-             merge_str_tsv + merge_str_vcf
+         str_calling: chr(*str_chrs) *  [ call_str + annotate_repeat_expansions ] + merge_str_tsv + merge_str_vcf
     ]
 }

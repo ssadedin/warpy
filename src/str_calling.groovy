@@ -22,7 +22,7 @@ call_str = {
 
                 cat $output.vcf.gz.prefix | vcfstreamsort | bgziptabix $output.vcf.gz;
             else
-                echo "blank subset BED";
+                echo "blank subset BED for $chr";
             fi
         """
     }
