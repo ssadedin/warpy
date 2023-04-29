@@ -9,7 +9,7 @@ options {
 }
 
 List input_files = opts.fast5_dir.listFiles().grep { it.name.endsWith('.fast5') || it.name.endsWith('.blow5') }
-input_pattern = input_files.any { it.endsWith('.fast5') } ? '%.fast5' : '%.blow5'
+input_pattern = input_files.any { it.name.endsWith('.fast5') } ? '%.fast5' : '%.blow5'
 
 // to make pipeline generic to work for either fast5 or blow5,
 // define virtual file extentions 'x5' that can map to either
