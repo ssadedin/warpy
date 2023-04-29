@@ -25,7 +25,7 @@ VERSION=0.9.12
 # Build date as an integer (unix epoch time)
 # This should be 0 in the source tree, 
 # it will be replaced by the build script at build time
-BUILDDATE=1678807159575
+BUILDDATE=1682809025933
 
 # Default memory used
 # Mainly here to limit memory on systems with very large memory
@@ -230,26 +230,6 @@ function handle_sigint() {
     if kill -0 $BPIPE_PID  ;
     then
         echo
-        
-        if [ -e .bpipe/dev_continue ];
-        then
-            read -p "Exit dev mode and execute commands? (y/n): "
-            if [ "$REPLY" == "y" ];
-            then
-                sleep 1
-                touch .bpipe/dev_continue
-                sleep 1
-                
-                echo "Continuing from dev session ...."
-
-               # (java -Xmx64m -classpath "$CP:$BPIPE_JAR"  -Dbpipe.home="$JVM_BPIPE_HOME" bpipe.Tail9 -f $BPIPE_PID ) 
-               
-                # wait $BPIPE_PID > /dev/null 2>&1
-                $0 log
-            fi
-            return
-        fi
-
         read -p "Pipeline job running as process $BPIPE_PID.  Terminate? (y/n): "
         if [ "$REPLY" == "y" ];
         then
@@ -708,8 +688,6 @@ done
 # file that contains its own PID.  
 tmsg " Launching Java"
 
-rm -f .bpipe/dev_continue
-
 # Disable wildcard expansion, in case the user supplied arguments 
 # containing escaped '*' or other wildcards that they intended
 # to pass through to Bpipe
@@ -754,8 +732,6 @@ $SHOWDEBUG && {
 
 if $LAUNCH_IN_FOREGROUND ;
 then
-    echo "Launching in foreground due to debug flag set"
-    
     bash -o pipefail -c "$LAUNCH_CMD" 
 
     exit_code=$?
