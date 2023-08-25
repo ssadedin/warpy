@@ -83,22 +83,21 @@ input_groups = input_files.collate(dorado_group_size).indexed().collectEntries {
 run(input_files) {
 
     init + 
-
-    make_mmi + input_groups * [ dorado + minimap2_align ] + merge_pass_calls + read_stats +
-
+    make_mmi + input_pattern * [ convert_fast5_to_pod5 + dorado + minimap2_align ] + merge_pass_calls + read_stats +
     [
          snp_calling : make_clair3_chunks  * [ pileup_variants ] + aggregate_pileup_variants +
          [ 
                 get_qual_filter,
                 chr(1..22, 'X','Y') * [
-                    select_het_snps +
-                    phase_contig +
-                    create_candidates + '%.bed' * [ evaluate_candidates ] ]
-         ] + aggregate_full_align_variants +
-            chr(1..22, 'X','Y') *  [ merge_pileup_and_full_vars ] + aggregate_all_variants,
+                    select_het_snps + phase_contig,
+                    create_candidates + '%.bed' * [ evaluate_candidates ] ] 
+                + aggregate_full_align_variants
+         ] +
+            chr(1..22, 'X','Y') * [ merge_pileup_and_full_vars ] + aggregate_all_variants ]/*,
              
          sv_calling: mosdepth + filterBam + sniffles2 + filter_sv_calls,
          
          str_calling: chr(*str_chrs) *  [ call_str + annotate_repeat_expansions ] + merge_str_tsv + merge_str_vcf
     ]
+    */
 }
