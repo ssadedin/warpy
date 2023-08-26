@@ -52,9 +52,9 @@ mkdir -p $DORADO_MODEL_DIR
 
 IS_DOWNLOAD_DORADO_MODEL=1
 
-if [ -f "$DORADO_MODEL_DIR/$DORADO_MODEL" ]; then
-    if [ $IS_REINSTALL_PKG ]; then
-        rm "$DORADO_MODEL_DIR/$DORADO_MODEL"
+if [ -d "$DORADO_MODEL_DIR/$DORADO_MODEL" ]; then
+    if [ $IS_REINSTALL_PKG -eq 1 ]; then
+        rm -rf "$DORADO_MODEL_DIR/$DORADO_MODEL"
     else
         echo "Basecalling model \"$DORADO_MODEL\" already exists, skipping model download..."
         IS_DOWNLOAD_DORADO_MODEL=0
