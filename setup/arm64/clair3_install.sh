@@ -2,7 +2,8 @@
 
 set -euo pipefail
 
-source common.sh
+INSTALL_SCRIPT_DIR=$(dirname $(realpath ${BASH_SOURCE}))
+source $INSTALL_SCRIPT_DIR/common.sh
 
 PYPY_VER="3.9-v7.3.8-osx64"
 MPMMATH_VER="1.2.1"

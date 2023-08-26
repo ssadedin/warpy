@@ -2,7 +2,8 @@
 
 set -euo pipefail
 
-source common.sh
+INSTALL_SCRIPT_DIR=$(dirname $(realpath ${BASH_SOURCE}))
+source $INSTALL_SCRIPT_DIR/common.sh
 
 if [ $# -gt 0 ]; then
     IS_REINSTALL_PKG=$1

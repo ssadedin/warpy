@@ -2,7 +2,8 @@
 
 set -euo pipefail
 
-source common.sh
+INSTALL_SCRIPT_DIR=$(dirname $(realpath ${BASH_SOURCE}))
+source $INSTALL_SCRIPT_DIR/common.sh
 
 INSTALL_DIR=$1
 
@@ -47,7 +48,7 @@ if [ $IS_INSTALL_DORADO -eq 1 ]; then
 fi
 
 #Download basecalling model
-DORADO_MODEL_DIR="../../models/"
+DORADO_MODEL_DIR=$(realpath $(realpath $INSTALL_DIR)/../models)
 mkdir -p $DORADO_MODEL_DIR
 
 IS_DOWNLOAD_DORADO_MODEL=1

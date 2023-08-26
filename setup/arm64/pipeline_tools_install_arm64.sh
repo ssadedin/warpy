@@ -2,7 +2,8 @@
 
 set -euo pipefail
 
-source common.sh
+INSTALL_SCRIPT_DIR=$(dirname $(realpath ${BASH_SOURCE}))
+source $INSTALL_SCRIPT_DIR/common.sh
 
 IS_REINSTALL_PKG=0
 
@@ -44,12 +45,12 @@ fi
 echo "All pre-requisites are met"
 echo ""
 
-INSTALL_DIR="../../tools"
+INSTALL_DIR=$(realpath $INSTALL_SCRIPT_DIR/../../tools)
 mkdir -p $INSTALL_DIR
 
 #Install Dorado
 echo "----- Dorado -----"
-source dorado_install.sh $INSTALL_DIR $IS_REINSTALL_PKG
+source $INSTALL_SCRIPT_DIR/dorado_install.sh $INSTALL_DIR $IS_REINSTALL_PKG
 echo ""
 
 #Install Minimap2
@@ -60,16 +61,16 @@ echo ""
 #Install Clair3
 echo "----- Clair3 -----"
 if [ $IS_REINSTALL_PKG -eq 1 ]; then
-    source clair3_install.sh -d $INSTALL_DIR -r
+    source $INSTALL_SCRIPT_DIR/clair3_install.sh -d $INSTALL_DIR -r
 else
-    source clair3_install.sh -d $INSTALL_DIR
+    source $INSTALL_SCRIPT_DIR/clair3_install.sh -d $INSTALL_DIR
 fi
 
 echo ""
 
 #Install bamstats, pod5, Sniffles2 into a Conda environment
 echo "----- bamstats, pod5, Sniffles2 -----"
-source fastcat_pod5_sniffles_install.sh $IS_REINSTALL_PKG
+source $INSTALL_SCRIPT_DIR/fastcat_pod5_sniffles_install.sh $IS_REINSTALL_PKG
 echo ""
 
 echo "ONT pipeline tools installation completed"
