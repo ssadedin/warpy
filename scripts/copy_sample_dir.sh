@@ -40,7 +40,7 @@ if [ ! -d $SRC_FAST5_DIR ]; then
     exit 1
 fi
 
-BASE=$(realpath $(pwd)/..)
+BASE=$(dirname $(dirname $(realpath ${BASH_SOURCE})))
 BATCHES_DIR="$BASE/batches"
 DEFAULT_SAMPLE_DIR_NAME="test_sample_"$(date +%Y-%m-%d_%H-%M-%S)
 DEST_SAMPLE_DIR_NAME=${USER_SAMPLE_DIR_NAME:-$DEFAULT_SAMPLE_DIR_NAME}
