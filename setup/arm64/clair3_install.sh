@@ -51,8 +51,8 @@ while [[ $# > 0 ]]; do
 done
 
 #Check input directory path
-if [ -n $CLAIR3_HOST_DIR_OPT ]; then
-    if [ ! -d $CLAIR3_HOST_DIR_OPT ]; then
+if [ -n "$CLAIR3_HOST_DIR_OPT" ]; then
+    if [ ! -d "$CLAIR3_HOST_DIR_OPT" ]; then
         echo "Directory \"$CLAIR3_HOST_DIR_OPT\" does not exist"
         exit 1
     fi
@@ -98,7 +98,11 @@ if [ $IS_INSTALL_CLAIR3 -eq 1 ]; then
     echo "Creating Conda environment \"$CLAIR3_CONDA_ENV\"..."
 
     conda create -n clair3-arm64 python=3.9 --yes
+    echo "Conda environment $CLAIR3_CONDA_ENV created"
+    set +e
     conda activate clair3-arm64
+    set -e
+    echo "Conda environment $CLAIR3_CONDA_ENV activated"
 
     conda install -c apple tensorflow-deps=2.8.0 --yes
 
@@ -113,7 +117,7 @@ if [ $IS_INSTALL_CLAIR3 -eq 1 ]; then
         rm -rf "$CLAIR3_HOST_DIR/Clair3"
     fi
 
-    cd $CLAIR3_HOST_DIR
+    cd "$CLAIR3_HOST_DIR"
     git clone https://github.com/HKU-BAL/Clair3.git
 
     #Install pypy and samtools/htslib under Clair3 directory
@@ -132,16 +136,12 @@ if [ $IS_INSTALL_CLAIR3 -eq 1 ]; then
 
     echo "Installing samtools under Clair3..."
 
-    #curl doesn't work for samtools and htslib
-    #curl -o ${SAMTOOLS_VER}.tar.gz https://github.com/samtools/samtools/archive/refs/tags/${SAMTOOLS_VER}.tar.gz
-    wget https://github.com/samtools/samtools/archive/refs/tags/${SAMTOOLS_VER}.tar.gz
-    tar -zxf ${SAMTOOLS_VER}.tar.gz
+    curl -L -o "${SAMTOOLS_VER}.tar.gz" "https://github.com/samtools/samtools/archive/refs/tags/${SAMTOOLS_VER}.tar.gz"
+    tar -zxf "${SAMTOOLS_VER}.tar.gz"
+    cd "samtools-${SAMTOOLS_VER}"
 
-    cd samtools-${SAMTOOLS_VER}
-
-    #curl -o htslib-${HTSLIB_VER}.tar.bz2 https://github.com/samtools/htslib/releases/download/${HTSLIB_VER}/htslib-${HTSLIB_VER}.tar.bz2
-    wget https://github.com/samtools/htslib/releases/download/${HTSLIB_VER}/htslib-${HTSLIB_VER}.tar.bz2
-    tar -zxf htslib-${HTSLIB_VER}.tar.bz2
+    curl -L -o "htslib-${HTSLIB_VER}.tar.bz2" "https://github.com/samtools/htslib/releases/download/${HTSLIB_VER}/htslib-${HTSLIB_VER}.tar.bz2"
+    tar -zxf "htslib-${HTSLIB_VER}.tar.bz2"
 
     autoheader
     autoconf -Wno-syntax
@@ -159,9 +159,9 @@ if [ $IS_INSTALL_CLAIR3 -eq 1 ]; then
 
     #Install longphase (under Clair3)
     echo "Installing longphase..."
-    wget https://github.com/twolinin/longphase/archive/refs/tags/v${LONGPHASE_VER}.tar.gz
-    tar -zxf v${LONGPHASE_VER}.tar.gz
-    cd longphase-${LONGPHASE_VER}/
+    curl -L -O "https://github.com/twolinin/longphase/archive/refs/tags/v${LONGPHASE_VER}.tar.gz"
+    tar -zxf "v${LONGPHASE_VER}.tar.gz"
+    cd "longphase-${LONGPHASE_VER}"
     autoreconf -i
     ./configure
     make -j 4
@@ -171,7 +171,7 @@ if [ $IS_INSTALL_CLAIR3 -eq 1 ]; then
     pip install --user whatshap
 
     #Download the Clair3 model (should match with the model used in Dorado)
-    if [ -z $CLAIR3_MODEL ]; then
+    if [ -z "$CLAIR3_MODEL" ]; then
         CLAIR3_MODEL=$DEFAULT_CLAIR3_MODEL
     fi
 
@@ -180,9 +180,9 @@ if [ $IS_INSTALL_CLAIR3 -eq 1 ]; then
     echo "Downloading Clair3 model \"$CLAIR3_MODEL\""
 
     mkdir -p models
-    curl -o ${CLAIR3_MODEL}.tar.gz https://cdn.oxfordnanoportal.com/software/analysis/models/clair3/${CLAIR3_MODEL}.tar.gz
-    tar -zxf ${CLAIR3_MODEL}.tar.gz -C models
-    rm ${CLAIR3_MODEL}.tar.gz
+    curl -o "${CLAIR3_MODEL}.tar.gz https://cdn.oxfordnanoportal.com/software/analysis/models/clair3/${CLAIR3_MODEL}.tar.gz"
+    tar -zxf "${CLAIR3_MODEL}.tar.gz" -C models
+    rm "${CLAIR3_MODEL}.tar.gz"
 
     conda deactivate
     conda clean --all --yes

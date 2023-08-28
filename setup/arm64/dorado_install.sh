@@ -41,14 +41,14 @@ if [ -d $INSTALL_DIR/$DORADO_TOOL_NAME ]; then
 fi
 
 if [ $IS_INSTALL_DORADO -eq 1 ]; then
-    wget -P $INSTALL_DIR https://cdn.oxfordnanoportal.com/software/analysis/${DORADO_DOWNLOAD_FILE_NAME}
+    curl -L -o "$INSTALL_DIR/$DORADO_DOWNLOAD_FILE_NAME" "https://cdn.oxfordnanoportal.com/software/analysis/${DORADO_DOWNLOAD_FILE_NAME}"
 
     tar -zxvf "$INSTALL_DIR/$DORADO_DOWNLOAD_FILE_NAME" -C $INSTALL_DIR
     rm "$INSTALL_DIR/$DORADO_DOWNLOAD_FILE_NAME"
 fi
 
 #Download basecalling model
-DORADO_MODEL_DIR=$(realpath $(realpath $INSTALL_DIR)/../models)
+DORADO_MODEL_DIR="$(realpath $INSTALL_DIR)/../models"
 mkdir -p $DORADO_MODEL_DIR
 
 IS_DOWNLOAD_DORADO_MODEL=1
