@@ -1,3 +1,7 @@
 models
 tools
 !tools/bpipe
+*.fast5
+*.fasta
+*.fai
+batches
