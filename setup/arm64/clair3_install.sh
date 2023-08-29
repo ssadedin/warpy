@@ -128,7 +128,7 @@ if [ $IS_INSTALL_CLAIR3 -eq 1 ]; then
     echo pypy${PYPY_VER}.tar.bz2
     echo https://downloads.python.org/pypy/pypy${PYPY_VER}.tar.bz2
 
-    curl -o pypy${PYPY_VER}.tar.bz2 https://downloads.python.org/pypy/pypy${PYPY_VER}.tar.bz2
+    curl -L -o "pypy${PYPY_VER}.tar.bz2" "https://downloads.python.org/pypy/pypy${PYPY_VER}.tar.bz2"
     tar -zxf pypy${PYPY_VER}.tar.bz2
 
     "./pypy${PYPY_VER}/bin/pypy" -m ensurepip
@@ -159,7 +159,7 @@ if [ $IS_INSTALL_CLAIR3 -eq 1 ]; then
 
     #Install longphase (under Clair3)
     echo "Installing longphase..."
-    curl -L -O "https://github.com/twolinin/longphase/archive/refs/tags/v${LONGPHASE_VER}.tar.gz"
+    curl -L -o "v${LONGPHASE_VER}.tar.gz" "https://github.com/twolinin/longphase/archive/refs/tags/v${LONGPHASE_VER}.tar.gz"
     tar -zxf "v${LONGPHASE_VER}.tar.gz"
     cd "longphase-${LONGPHASE_VER}"
     autoreconf -i
@@ -180,7 +180,7 @@ if [ $IS_INSTALL_CLAIR3 -eq 1 ]; then
     echo "Downloading Clair3 model \"$CLAIR3_MODEL\""
 
     mkdir -p models
-    curl -o "${CLAIR3_MODEL}.tar.gz https://cdn.oxfordnanoportal.com/software/analysis/models/clair3/${CLAIR3_MODEL}.tar.gz"
+    curl -L -o "${CLAIR3_MODEL}.tar.gz" "https://cdn.oxfordnanoportal.com/software/analysis/models/clair3/${CLAIR3_MODEL}.tar.gz"
     tar -zxf "${CLAIR3_MODEL}.tar.gz" -C models
     rm "${CLAIR3_MODEL}.tar.gz"
 
