@@ -1,5 +1,7 @@
 models
 tools
+batches
+.DS_Store
 !tools/bpipe
 *.fast5
 *.fasta
