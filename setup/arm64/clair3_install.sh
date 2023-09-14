@@ -11,7 +11,8 @@ MPMMATH_VER="1.2.1"
 SAMTOOLS_VER="1.15.1"
 HTSLIB_VER="1.15.1"
 LONGPHASE_VER="1.5"
-DEFAULT_CLAIR3_MODEL="r1041_e82_400bps_hac_v410"
+CLAIR3_MODEL_V4_1_0="r1041_e82_400bps_hac_v410"
+CLAIR3_MODEL_V4_2_0="r1041_e82_400bps_hac_v420"
 
 show_help_msg() {
     echo "Usage: $1 --dir|-d <Clair3 host directory path> --model|-m <Clair3 model> --reinstall|-r --help|-h"
@@ -19,6 +20,31 @@ show_help_msg() {
     echo "          --model|-m: Clair3 model to download"
     echo "          --reinstall|-r: Reinstall the Homebrew packages when they are installed"
     echo "          --help|-h: Show this help message"
+}
+
+download_clair3_model() {
+    local CLAIR3_MODEL=$1
+    local CLAIR3_MODELS_DIR=$2
+    local IS_REINSTALL_PKG=$3
+    local IS_DOWNLOAD_CLAIR3_MODEL=1
+
+    if [ -d "$CLAIR3_MODELS_DIR/$CLAIR3_MODEL" ]; then
+        if [ $IS_REINSTALL_PKG -eq 1 ]; then
+            rm -rf "$CLAIR3_MODELS_DIR/$CLAIR3_MODEL"
+        else
+            echo "Clair3 model \"$CLAIR3_MODEL\" already exists, skipping model download..."
+            IS_DOWNLOAD_CLAIR3_MODEL=0
+        fi
+    fi
+
+    if [ $IS_DOWNLOAD_CLAIR3_MODEL -eq 1 ]; then
+        echo "Downloading Clair3 model \"$CLAIR3_MODEL\""
+
+        mkdir -p $CLAIR3_MODELS_DIR
+        curl -L -o "$CLAIR3_MODELS_DIR/${CLAIR3_MODEL}.tar.gz" "https://cdn.oxfordnanoportal.com/software/analysis/models/clair3/${CLAIR3_MODEL}.tar.gz"
+        tar -zxf "$CLAIR3_MODELS_DIR/${CLAIR3_MODEL}.tar.gz" -C $CLAIR3_MODELS_DIR
+        rm "$CLAIR3_MODELS_DIR/${CLAIR3_MODEL}.tar.gz"
+    fi
 }
 
 CLAIR3_HOST_DIR_OPT=""
@@ -61,6 +87,8 @@ if [ -n "$CLAIR3_HOST_DIR_OPT" ]; then
 else
     CLAIR3_HOST_DIR=$(realpath)
 fi
+
+CLAIR3_DIR="$CLAIR3_HOST_DIR/Clair3"
 
 #Install required packages via Homebrew
 install_brew_pkg "parallel" $IS_REINSTALL_PKG
@@ -113,8 +141,8 @@ if [ $IS_INSTALL_CLAIR3 -eq 1 ]; then
     #Do not upgrade numpy to avoid breaking the numpy version requirement for tensorflow-macos
     #pip install numpy --upgrade
 
-    if [ -d "$CLAIR3_HOST_DIR/Clair3" ]; then
-        rm -rf "$CLAIR3_HOST_DIR/Clair3"
+    if [ -d $CLAIR3_DIR ]; then
+        rm -rf $CLAIR3_DIR
     fi
 
     cd "$CLAIR3_HOST_DIR"
@@ -170,22 +198,20 @@ if [ $IS_INSTALL_CLAIR3 -eq 1 ]; then
     echo "Installing whatshap..."
     pip install --user whatshap
 
-    #Download the Clair3 model (should match with the model used in Dorado)
-    if [ -z "$CLAIR3_MODEL" ]; then
-        CLAIR3_MODEL=$DEFAULT_CLAIR3_MODEL
-    fi
-
-    cd ..
-
-    echo "Downloading Clair3 model \"$CLAIR3_MODEL\""
-
-    mkdir -p models
-    curl -L -o "${CLAIR3_MODEL}.tar.gz" "https://cdn.oxfordnanoportal.com/software/analysis/models/clair3/${CLAIR3_MODEL}.tar.gz"
-    tar -zxf "${CLAIR3_MODEL}.tar.gz" -C models
-    rm "${CLAIR3_MODEL}.tar.gz"
-
     conda deactivate
     conda clean --all --yes
 
+    cd ..
+
     echo "Clair3 installation and setup completed"
+fi
+
+#Download the Clair3 model (should match with the model used in Dorado)
+CLAIR3_MODELS_DIR="$CLAIR3_DIR/models"
+
+if [ -z "$CLAIR3_MODEL" ]; then
+    download_clair3_model $CLAIR3_MODEL_V4_1_0 $CLAIR3_MODELS_DIR $IS_REINSTALL_PKG
+    download_clair3_model $CLAIR3_MODEL_V4_2_0 $CLAIR3_MODELS_DIR $IS_REINSTALL_PKG
+else
+    download_clair3_model $CLAIR3_MODEL $CLAIR3_MODELS_DIR $IS_REINSTALL_PKG
 fi

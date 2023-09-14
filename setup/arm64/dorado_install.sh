@@ -2,6 +2,29 @@
 
 set -euo pipefail
 
+download_dorado_model() {
+    local DORADO_MODELS_DIR=$1
+    local DORADO_MODEL=$2
+    local INSTALL_DIR=$3
+    local DORADO_TOOL_NAME=$4
+    local IS_REINSTALL_PKG=$5
+    local IS_DOWNLOAD_DORADO_MODEL=1
+
+    if [ -d "$DORADO_MODELS_DIR/$DORADO_MODEL" ]; then
+        if [ $IS_REINSTALL_PKG -eq 1 ]; then
+            rm -rf "$DORADO_MODELS_DIR/$DORADO_MODEL"
+        else
+            echo "Basecalling model \"$DORADO_MODEL\" already exists, skipping model download..."
+            IS_DOWNLOAD_DORADO_MODEL=0
+        fi
+    fi
+
+    if [ $IS_DOWNLOAD_DORADO_MODEL -eq 1 ]; then
+        echo "Downloading basecalling model \"$DORADO_MODEL\""
+        "${INSTALL_DIR}/${DORADO_TOOL_NAME}/bin/dorado" download --model $DORADO_MODEL --directory $DORADO_MODELS_DIR
+    fi
+}
+
 INSTALL_SCRIPT_DIR=$(dirname $(realpath ${BASH_SOURCE}))
 source $INSTALL_SCRIPT_DIR/common.sh
 
@@ -20,8 +43,9 @@ OPENSSL_VER=3
 DORADO_VER="0.3.4"
 DORADO_TOOL_NAME="dorado-${DORADO_VER}-osx-arm64"
 DORADO_DOWNLOAD_FILE_NAME="${DORADO_TOOL_NAME}.tar.gz"
-#The Clair3 model (from rerio) needs to match with the basecalling model here
-DORADO_MODEL="dna_r10.4.1_e8.2_400bps_hac@v4.1.0"
+#The Clair3 models (from rerio) needs to match with the basecalling models here
+DORADO_MODEL_V4_1_0="dna_r10.4.1_e8.2_400bps_hac@v4.1.0"
+DORADO_MODEL_V4_2_0="dna_r10.4.1_e8.2_400bps_hac@v4.2.0"
 
 #Install pre-requisities for Dorado
 install_brew_pkg autoconf@${AUTOCONF_VER} $IS_REINSTALL_PKG $IS_LINK_AUTOCONF
@@ -48,21 +72,8 @@ if [ $IS_INSTALL_DORADO -eq 1 ]; then
 fi
 
 #Download basecalling model
-DORADO_MODEL_DIR="$(realpath $INSTALL_DIR)/../models"
-mkdir -p $DORADO_MODEL_DIR
+DORADO_MODELS_DIR="$(realpath $INSTALL_DIR)/../models"
+mkdir -p $DORADO_MODELS_DIR
 
-IS_DOWNLOAD_DORADO_MODEL=1
-
-if [ -d "$DORADO_MODEL_DIR/$DORADO_MODEL" ]; then
-    if [ $IS_REINSTALL_PKG -eq 1 ]; then
-        rm -rf "$DORADO_MODEL_DIR/$DORADO_MODEL"
-    else
-        echo "Basecalling model \"$DORADO_MODEL\" already exists, skipping model download..."
-        IS_DOWNLOAD_DORADO_MODEL=0
-    fi
-fi
-
-if [ $IS_DOWNLOAD_DORADO_MODEL -eq 1 ]; then
-    echo "Downloading basecalling model \"$DORADO_MODEL\""
-    "${INSTALL_DIR}/${DORADO_TOOL_NAME}/bin/dorado" download --model $DORADO_MODEL --directory $DORADO_MODEL_DIR
-fi
+download_dorado_model $DORADO_MODELS_DIR $DORADO_MODEL_V4_1_0 $INSTALL_DIR $DORADO_TOOL_NAME $IS_REINSTALL_PKG
+download_dorado_model $DORADO_MODELS_DIR $DORADO_MODEL_V4_2_0 $INSTALL_DIR $DORADO_TOOL_NAME $IS_REINSTALL_PKG
