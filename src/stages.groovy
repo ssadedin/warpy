@@ -435,9 +435,13 @@ create_candidates = {
 
             rm -f $output.dir/*.bed
 
+            src_bed_file_name_pattern="^$output.dir/$chr.+\$"
+
             for i in $output.dir/*.*;
             do 
-                mv -v \$i \${i}.bed;
+                if [[ \$i =~ \$src_bed_file_name_pattern ]]; then
+                    mv -v \$i \${i}.bed;
+                fi
             done
 
             conda deactivate
