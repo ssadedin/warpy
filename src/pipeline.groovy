@@ -83,7 +83,7 @@ input_groups = input_files.collate(dorado_group_size).indexed().collectEntries {
 run(input_files) {
 
     init + 
-    make_mmi + input_pattern * [ convert_fast5_to_pod5 + dorado + minimap2_align ] + merge_pass_calls + read_stats +
+    make_mmi + input_pattern * [ convert_fast5_to_pod5.when { input.x5.endsWith('.fast5') } + dorado + minimap2_align ] + merge_pass_calls + read_stats +
     [
          snp_calling : make_clair3_chunks  * [ pileup_variants ] + aggregate_pileup_variants +
          [ 
