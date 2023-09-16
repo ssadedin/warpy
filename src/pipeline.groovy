@@ -2,18 +2,27 @@
 title 'Warpy - Oxford Nanopore Super High Accuracy Pipeline'
 
 options {
-    fast5_dir 'Directory containig FAST5 files', args:1, type: File, required: true
+    data_dir 'Directory containig raw data files (fastq, blow5, pod5)', args:1, type: File, required: true
     sample 'Name of sample', args:1, type: String, required: true
     targets 'Target regions to call variants in', args:1, type: File, required: true
     sex 'Sample sex (required for STR analysis)', args:1, type: String, required: true
 }
 
-List input_files = opts.fast5_dir.listFiles().grep { it.name.endsWith('.fast5') || it.name.endsWith('.blow5') }
-input_pattern = input_files.any { it.name.endsWith('.fast5') } ? '%.fast5' : '%.blow5'
+ext = { File file ->
+    file.name.tokenize('.')[-1]
+}
+
+List input_files = opts.data_dir.listFiles().grep { ext(it) in ['fast5','blow5','pod5']  }
+
+by_extension = input_files.groupBy { ext(it) }
+if(by_extension.size() > 1) 
+    throw new bpipe.PipelineError("Warpy can only accept a single file type for analysis in one execution")
+
+input_pattern = '%' + by_extension*.key[0]
 
 // to make pipeline generic to work for either fast5 or blow5,
 // define virtual file extentions 'x5' that can map to either
-filetype x5 : ['blow5','fast5']
+filetype x5 : ['blow5','fast5','pod5']
 
 Map params = model.params
 
