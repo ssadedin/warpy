@@ -7,7 +7,7 @@ dorado = {
         exec """
             set -o pipefail
 
-            ${inputs.x5.collect { file(it) }*.absoluteFile.collect { "ln -s $it $output.dir/$it.name;"}.join("\n") }
+            ${inputs.x5.collect { file(it) }*.absoluteFile.collect { "ln -sf $it $output.dir/$it.name;"}.join("\n") }
 
             $tools.DORADO basecaller  -b 100 
             $DRD_MODELS_PATH/$model.params.drd_model 
