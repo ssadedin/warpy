@@ -48,9 +48,10 @@ println "The chromosomes for STR calling are: $str_chrs"
 load 'stages.groovy'
 load 'sv_calling.groovy'
 load 'str_calling.groovy'
+load 'methylation.groovy'
    
 init = {
-    println "\nProcessing ${input_files.size()} input fast5 files ...\n"
+    println "\nProcessing ${input_files.size()} input files ...\n"
     println "\nUsing base calling model: $params.drd_model"
     println "\nUsing clair3 model: $clair3_model"
     
@@ -61,9 +62,16 @@ init = {
     }
 }
 
+dorado_group_size = 10
+
+input_groups = input_files.collate(dorado_group_size).indexed().collectEntries { [ "dorado_group_" + it.key, it.value] }
+
 run(input_files) {
+
     init + 
-    make_mmi + input_pattern * [ dorado + minimap2_align ] + merge_pass_calls + read_stats +
+
+    make_mmi + input_groups * [ dorado + minimap2_align ] + merge_pass_calls + read_stats +
+
     [
          snp_calling : make_clair3_chunks  * [ pileup_variants ] + aggregate_pileup_variants +
          [ 
