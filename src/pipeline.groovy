@@ -48,7 +48,7 @@ println "The chromosomes for STR calling are: $str_chrs"
 load 'stages.groovy'
 load 'sv_calling.groovy'
 load 'str_calling.groovy'
-load 'methylation.groovy'
+// load 'methylation.groovy'
    
 init = {
     println "\nProcessing ${input_files.size()} input files ...\n"
