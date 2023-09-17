@@ -1,7 +1,7 @@
 
 dorado = {
 
-    output.dir='dorado/' + file(input.x5.prefix).name
+    output.dir='dorado/' + branch.name
     
     uses(dorados: 1) {
         exec """
