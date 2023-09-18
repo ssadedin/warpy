@@ -2,7 +2,6 @@
 title 'Warpy - Oxford Nanopore Super High Accuracy Pipeline'
 
 options {
-    data_dir 'Directory containig raw data files (fastq, blow5, pod5)', args:1, type: File, required: true
     sample 'Name of sample', args:1, type: String, required: true
     targets 'Target regions to call variants in', args:1, type: File, required: true
     sex 'Sample sex (required for STR analysis)', args:1, type: String, required: true
@@ -12,7 +11,16 @@ ext = { File file ->
     file.name.tokenize('.')[-1]
 }
 
-List input_files = opts.data_dir.listFiles().grep { ext(it) in ['fast5','blow5','pod5']  }
+if(args.size()==0) 
+    throw new bpipe.PipelineError(
+        """
+        No data directories were provided to analyse. 
+
+        Please provide one or more data directories containing pod5, fast5 or blow5 files as arguments.
+        """
+    )
+
+List input_files = args.collect { new File(it) }*.listFiles().flatten().grep { ext(it) in ['fast5','blow5','pod5']  }
 
 by_extension = input_files.groupBy { ext(it) }
 if(by_extension.size() > 1) 
@@ -62,9 +70,15 @@ init = {
     }
 }
 
+// Adjust this group size so that a reasonable amount of compute is performed by
+// each dorado job
 dorado_group_size = 10
 
-input_groups = input_files.collate(dorado_group_size).indexed().collectEntries { [ "dorado_group_" + it.key, it.value] }
+// divide the input files into groups of appropriate size
+// so that we can split into multiple different dorado jobs
+input_groups = input_files.collate(dorado_group_size).indexed().collectEntries { 
+    [ "dorado_group_" + it.key, it.value] 
+}
 
 run(input_files) {
 
