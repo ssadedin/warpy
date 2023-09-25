@@ -42,6 +42,11 @@ if [ -z $(which conda) ]; then
     exit 1
 fi
 
+if [ -z $(which docker) ]; then
+    echo "Docker is not installed"
+    exit 1
+fi
+
 echo "All pre-requisites are met"
 echo ""
 
@@ -66,6 +71,10 @@ else
     source $INSTALL_SCRIPT_DIR/clair3_install.sh -d $INSTALL_DIR
 fi
 
+echo ""
+
+echo "----- Mosdepth -----"
+source $INSTALL_SCRIPT_DIR/mosdepth_install.sh $IS_REINSTALL_PKG
 echo ""
 
 #Install bamstats, pod5, Sniffles2 into a Conda environment

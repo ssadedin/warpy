@@ -52,3 +52,13 @@ install_brew_pkg() {
 is_env_found() {
     [ $(conda env list | grep -c "^${1} .*") -gt 0 ]
 }
+
+is_docker_img_found() {
+    [ $(docker images -f reference="$1:$2" | grep -c "${1} *${2}") -gt 0 ]
+}
+
+remove_docker_containers_for_img() {
+    for CONTAINER_ID in $(docker container ls -aq --filter ancestor="$1:$2"); do
+        docker rm $CONTAINER_ID
+    done
+}
