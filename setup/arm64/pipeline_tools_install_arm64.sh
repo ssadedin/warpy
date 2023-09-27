@@ -82,4 +82,14 @@ echo "----- bamstats, pod5, Sniffles2 -----"
 source $INSTALL_SCRIPT_DIR/fastcat_pod5_sniffles_install.sh $IS_REINSTALL_PKG
 echo ""
 
+#Download target tandem repeat BED files for Sniffles
+echo "----- Supplementary files -----"
+echo "Downloading target tandem repeat BED files for Sniffles..."
+DATA_DIR=$(realpath $INSTALL_SCRIPT_DIR/../../data)
+
+curl -L -o $DATA_DIR/human_GRCh38_no_alt_analysis_set.trf.bed https://raw.githubusercontent.com/fritzsedlazeck/Sniffles/master/annotations/human_GRCh38_no_alt_analysis_set.trf.bed
+
+grep -e '^chr21' $DATA_DIR/human_GRCh38_no_alt_analysis_set.trf.bed > $DATA_DIR/human_GRCh38_no_alt_analysis_set.trf.chr21.bed
+echo ""
+
 echo "ONT pipeline tools installation completed"
