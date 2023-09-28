@@ -42,6 +42,7 @@ if [ -z $(which conda) ]; then
     exit 1
 fi
 
+#Docker is required to install tools such as sniffles, mosdepth, etc. via pipeline execution
 if [ -z $(which docker) ]; then
     echo "Docker is not installed"
     exit 1
@@ -73,13 +74,9 @@ fi
 
 echo ""
 
-echo "----- Mosdepth -----"
-source $INSTALL_SCRIPT_DIR/mosdepth_install.sh $IS_REINSTALL_PKG
-echo ""
-
-#Install bamstats, pod5, Sniffles2 into a Conda environment
-echo "----- bamstats, pod5, Sniffles2 -----"
-source $INSTALL_SCRIPT_DIR/fastcat_pod5_sniffles_install.sh $IS_REINSTALL_PKG
+#Install pod5 into a Conda environment
+echo "----- pod5 -----"
+source $INSTALL_SCRIPT_DIR/ont_tools_install.sh $IS_REINSTALL_PKG
 echo ""
 
 #Download target tandem repeat BED files for Sniffles
