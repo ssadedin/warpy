@@ -221,10 +221,8 @@ pileup_variants = {
 
             export REF_PATH=cram_cache/%2s/%2s/%s
 
-            export CLAIR_MODELS_PATH="$tools.CLAIR3/models/"
-
             python $tools.CLAIR3/clair3.py CallVariantsFromCffi
-                --chkpnt_fn \$CLAIR_MODELS_PATH/${clair3_model.clair3_model_name}/pileup
+                --chkpnt_fn $CLAIR3_MODELS_PATH/${clair3_model.clair3_model_name}/pileup
                 --bam_fn $input.bam
                 --call_fn $output.vcf.optional
                 --ref_fn $REF
@@ -470,10 +468,8 @@ evaluate_candidates = {
 
             echo "[INFO] 6/7 Call low-quality variants using full-alignment model"
 
-            export CLAIR_MODELS_PATH="$tools.CLAIR3/models/"
-
             python $tools.CLAIR3/clair3.py CallVariantsFromCffi
-                --chkpnt_fn \$CLAIR_MODELS_PATH/${clair3_model.clair3_model_name}/full_alignment
+                --chkpnt_fn $CLAIR3_MODELS_PATH/${clair3_model.clair3_model_name}/full_alignment
                 --bam_fn $input.bam 
                 --call_fn $output.vcf
                 --sampleName ${opts.sample}

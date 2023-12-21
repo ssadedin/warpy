@@ -62,3 +62,38 @@ remove_docker_containers_for_img() {
         docker rm $CONTAINER_ID
     done
 }
+
+is_target_url_exist() {
+    if curl -L -o /dev/null -s -I -f "$1"; then
+        echo 1
+    else
+        echo 0
+    fi
+}
+
+download_from_web() {
+    URL_PREFIX=$1
+    TARGET_NAME=$2
+    INSTALL_DIR=$3
+
+    ARCHIVE_EXTS=("tar.gz" "tar.bz2" "zip")
+    DECOMPRESS_CMDS=("tar -zxvf target_file_path -C ${INSTALL_DIR}"
+        "tar -zxvf target_file_path -C ${INSTALL_DIR}"
+        "unzip -d ${INSTALL_DIR} target_file_path")
+
+    for ((i=0; i<${#ARCHIVE_EXTS[@]}; i++)); do
+        TARGET_FILE_NAME="${TARGET_NAME}.${ARCHIVE_EXTS[i]}"
+        TARGET_URL="${URL_PREFIX}/${TARGET_FILE_NAME}"
+
+        if [ $(is_target_url_exist $TARGET_URL) -eq 1 ]; then
+            TARGET_FILE_PATH="${INSTALL_DIR}/${TARGET_FILE_NAME}"
+            curl -L -o $TARGET_FILE_PATH $TARGET_URL
+            CMD="${DECOMPRESS_CMDS[i]/target_file_path/${TARGET_FILE_PATH}}"
+            eval "$CMD"
+            rm $TARGET_FILE_PATH
+            return 0
+        fi
+    done
+
+    echo "Warning: Unable to download $TARGET_NAME from $URL_PREFIX"
+}

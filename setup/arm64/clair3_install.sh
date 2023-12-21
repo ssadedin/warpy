@@ -13,6 +13,7 @@ HTSLIB_VER="1.15.1"
 LONGPHASE_VER="1.5"
 CLAIR3_MODEL_V4_1_0="r1041_e82_400bps_hac_v410"
 CLAIR3_MODEL_V4_2_0="r1041_e82_400bps_hac_v420"
+CLAIR3_MODEL_V4_3_0="r1041_e82_400bps_hac_v430"
 
 show_help_msg() {
     echo "Usage: $1 --dir|-d <Clair3 host directory path> --model|-m <Clair3 model> --reinstall|-r --help|-h"
@@ -41,9 +42,7 @@ download_clair3_model() {
         echo "Downloading Clair3 model \"$CLAIR3_MODEL\""
 
         mkdir -p $CLAIR3_MODELS_DIR
-        curl -L -o "$CLAIR3_MODELS_DIR/${CLAIR3_MODEL}.tar.gz" "https://cdn.oxfordnanoportal.com/software/analysis/models/clair3/${CLAIR3_MODEL}.tar.gz"
-        tar -zxf "$CLAIR3_MODELS_DIR/${CLAIR3_MODEL}.tar.gz" -C $CLAIR3_MODELS_DIR
-        rm "$CLAIR3_MODELS_DIR/${CLAIR3_MODEL}.tar.gz"
+        download_from_web "https://cdn.oxfordnanoportal.com/software/analysis/models/clair3" $CLAIR3_MODEL $CLAIR3_MODELS_DIR
     fi
 }
 
@@ -156,20 +155,17 @@ if [ $IS_INSTALL_CLAIR3 -eq 1 ]; then
     echo pypy${PYPY_VER}.tar.bz2
     echo https://downloads.python.org/pypy/pypy${PYPY_VER}.tar.bz2
 
-    curl -L -o "pypy${PYPY_VER}.tar.bz2" "https://downloads.python.org/pypy/pypy${PYPY_VER}.tar.bz2"
-    tar -zxf pypy${PYPY_VER}.tar.bz2
+    download_from_web "https://downloads.python.org/pypy" "pypy${PYPY_VER}" "."
 
     "./pypy${PYPY_VER}/bin/pypy" -m ensurepip
     "./pypy${PYPY_VER}/bin/pypy" -m pip install mpmath==$MPMMATH_VER
 
     echo "Installing samtools under Clair3..."
 
-    curl -L -o "${SAMTOOLS_VER}.tar.gz" "https://github.com/samtools/samtools/archive/refs/tags/${SAMTOOLS_VER}.tar.gz"
-    tar -zxf "${SAMTOOLS_VER}.tar.gz"
+    download_from_web "https://github.com/samtools/samtools/archive/refs/tags" "${SAMTOOLS_VER}" "."
     cd "samtools-${SAMTOOLS_VER}"
 
-    curl -L -o "htslib-${HTSLIB_VER}.tar.bz2" "https://github.com/samtools/htslib/releases/download/${HTSLIB_VER}/htslib-${HTSLIB_VER}.tar.bz2"
-    tar -zxf "htslib-${HTSLIB_VER}.tar.bz2"
+    download_from_web "https://github.com/samtools/htslib/releases/download/${HTSLIB_VER}" "htslib-${HTSLIB_VER}" "."
 
     autoheader
     autoconf -Wno-syntax
@@ -187,8 +183,7 @@ if [ $IS_INSTALL_CLAIR3 -eq 1 ]; then
 
     #Install longphase (under Clair3)
     echo "Installing longphase..."
-    curl -L -o "v${LONGPHASE_VER}.tar.gz" "https://github.com/twolinin/longphase/archive/refs/tags/v${LONGPHASE_VER}.tar.gz"
-    tar -zxf "v${LONGPHASE_VER}.tar.gz"
+    download_from_web "https://github.com/twolinin/longphase/archive/refs/tags" "v${LONGPHASE_VER}" "."
     cd "longphase-${LONGPHASE_VER}"
     autoreconf -i
     ./configure
@@ -207,11 +202,12 @@ if [ $IS_INSTALL_CLAIR3 -eq 1 ]; then
 fi
 
 #Download the Clair3 model (should match with the model used in Dorado)
-CLAIR3_MODELS_DIR="$CLAIR3_DIR/models"
+CLAIR3_MODELS_DIR="$CLAIR3_HOST_DIR/../models/Clair3"
 
 if [ -z "$CLAIR3_MODEL" ]; then
     download_clair3_model $CLAIR3_MODEL_V4_1_0 $CLAIR3_MODELS_DIR $IS_REINSTALL_PKG
     download_clair3_model $CLAIR3_MODEL_V4_2_0 $CLAIR3_MODELS_DIR $IS_REINSTALL_PKG
+    download_clair3_model $CLAIR3_MODEL_V4_3_0 $CLAIR3_MODELS_DIR $IS_REINSTALL_PKG
 else
     download_clair3_model $CLAIR3_MODEL $CLAIR3_MODELS_DIR $IS_REINSTALL_PKG
 fi

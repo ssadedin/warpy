@@ -40,12 +40,13 @@ IS_LINK_AUTOCONF=1
 
 AUTOCONF_VER=2.69
 OPENSSL_VER=3
-DORADO_VER="0.3.4"
+DORADO_VER="0.5.0"
 DORADO_TOOL_NAME="dorado-${DORADO_VER}-osx-arm64"
 DORADO_DOWNLOAD_FILE_NAME="${DORADO_TOOL_NAME}.tar.gz"
 #The Clair3 models (from rerio) needs to match with the basecalling models here
 DORADO_MODEL_V4_1_0="dna_r10.4.1_e8.2_400bps_hac@v4.1.0"
 DORADO_MODEL_V4_2_0="dna_r10.4.1_e8.2_400bps_hac@v4.2.0"
+DORADO_MODEL_V4_3_0="dna_r10.4.1_e8.2_400bps_hac@v4.3.0"
 
 #Install pre-requisities for Dorado
 install_brew_pkg autoconf@${AUTOCONF_VER} $IS_REINSTALL_PKG $IS_LINK_AUTOCONF
@@ -65,15 +66,13 @@ if [ -d $INSTALL_DIR/$DORADO_TOOL_NAME ]; then
 fi
 
 if [ $IS_INSTALL_DORADO -eq 1 ]; then
-    curl -L -o "$INSTALL_DIR/$DORADO_DOWNLOAD_FILE_NAME" "https://cdn.oxfordnanoportal.com/software/analysis/${DORADO_DOWNLOAD_FILE_NAME}"
-
-    tar -zxvf "$INSTALL_DIR/$DORADO_DOWNLOAD_FILE_NAME" -C $INSTALL_DIR
-    rm "$INSTALL_DIR/$DORADO_DOWNLOAD_FILE_NAME"
+    download_from_web "https://cdn.oxfordnanoportal.com/software/analysis" $DORADO_TOOL_NAME $INSTALL_DIR
 fi
 
 #Download basecalling model
-DORADO_MODELS_DIR="$(realpath $INSTALL_DIR)/../models"
+DORADO_MODELS_DIR="$(realpath $INSTALL_DIR)/../models/dorado"
 mkdir -p $DORADO_MODELS_DIR
 
 download_dorado_model $DORADO_MODELS_DIR $DORADO_MODEL_V4_1_0 $INSTALL_DIR $DORADO_TOOL_NAME $IS_REINSTALL_PKG
 download_dorado_model $DORADO_MODELS_DIR $DORADO_MODEL_V4_2_0 $INSTALL_DIR $DORADO_TOOL_NAME $IS_REINSTALL_PKG
+download_dorado_model $DORADO_MODELS_DIR $DORADO_MODEL_V4_3_0 $INSTALL_DIR $DORADO_TOOL_NAME $IS_REINSTALL_PKG

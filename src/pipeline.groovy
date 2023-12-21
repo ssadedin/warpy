@@ -34,7 +34,8 @@ filetype x5 : ['blow5','fast5','pod5']
 
 Map params = model.params
 
-DRD_MODELS_PATH="$BASE/models"
+DRD_MODELS_PATH="$BASE/models/dorado"
+CLAIR3_MODELS_PATH="$BASE/models/Clair3"
 
 VERSION="1.0"
 
