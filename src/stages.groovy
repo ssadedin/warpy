@@ -111,36 +111,6 @@ read_stats = {
     }
 }
 
-/*
-read_stats = {
-
-    def FASTCAT_CONDA_ENV = 'fastcat'
-
-    output.dir = "qc/bamstats"
-
-    produce("${opts.sample}.readstats.tsv.gz") {
-        exec """
-            set -uo pipefail
-
-            export SHELL="/opt/homebrew/bin/bash"
-
-            __conda_setup="\$('/opt/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
-
-            eval "$__conda_setup"
-
-            conda activate $FASTCAT_CONDA_ENV
-
-            bamstats --threads 3 $input.bam | gzip > $output.gz
-
-            conda deactivate
-
-            unset __conda_setup
-        """
-    }
-}
-*/
-
-
 make_clair3_chunks = {
 
     output.dir = 'clair_output/tmp' 
@@ -154,18 +124,11 @@ make_clair3_chunks = {
         exec """
             set -uo pipefail
 
-            export SHELL="/opt/homebrew/bin/bash"
-
-            __conda_setup="\$('/opt/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
-
-            eval "$__conda_setup"
-
-            conda activate $conda_envs.CLAIR3
-
             python $tools.CLAIR3/clair3.py CheckEnvs
                 --bam_fn $input.bam
                 --output_fn_prefix clair_output
                 --ref_fn $REF
+                --bed_fn $opts.targets
                 --vcf_fn $vcf_fn
                 --ctg_name $ctg_name
                 --chunk_num 0
@@ -183,10 +146,6 @@ make_clair3_chunks = {
                 --snp_min_af $calling.snp_min_af
                 --indel_min_af $calling.indel_min_af
                 --min_contig_size $min_contig_size
-
-            conda deactivate
-
-            unset __conda_setup
         """
     }
     
@@ -209,16 +168,6 @@ pileup_variants = {
     
     produce("${opts.sample}_${branch.metadata.chr}_${branch.metadata.chunk_id}.vcf", "${opts.sample}_${branch.metadata.chr}_${branch.metadata.chunk_id}.txt") {
         exec """
-            set -uo pipefail
-
-            export SHELL="/opt/homebrew/bin/bash"
-
-            __conda_setup="\$('/opt/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
-
-            eval "$__conda_setup"
-
-            conda activate $conda_envs.CLAIR3
-
             export REF_PATH=cram_cache/%2s/%2s/%s
 
             python $tools.CLAIR3/clair3.py CallVariantsFromCffi
@@ -241,10 +190,6 @@ pileup_variants = {
                 --temp_file_dir gvcf_tmp_path
                 --pileup
 
-            conda deactivate
-
-            unset __conda_setup
-
             echo "`date` : succesfully called variants" > $output.txt
         """
     }
@@ -257,14 +202,6 @@ aggregate_pileup_variants = {
     from('CONTIGS') produce("${opts.sample}.aggregate.pileup.vcf.gz") {
         exec """
             set -uo pipefail
-
-            export SHELL="/opt/homebrew/bin/bash"
-
-            __conda_setup="\$('/opt/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
-
-            eval "$__conda_setup"
-
-            conda activate $conda_envs.CLAIR3
 
             $tools.PYPY $tools.CLAIR3/clair3.py SortVcf
                 --contigs_fn $input
@@ -280,10 +217,6 @@ aggregate_pileup_variants = {
 
             bgzip -@ $threads -fdc $output.vcf.gz |
                 $tools.PYPY $tools.CLAIR3/clair3.py SelectQual --var_pct_phasing $calling.phasing_pct --phase --output_fn .
-
-            conda deactivate
-
-            unset __conda_setup
         """
     }
 }
@@ -295,16 +228,6 @@ select_het_snps = {
     
     transform('.vcf.gz') to('.het_snps.vcf.gz') {
         exec """
-            set -uo pipefail
-
-            export SHELL="/opt/homebrew/bin/bash"
-
-            __conda_setup="\$('/opt/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
-
-            eval "$__conda_setup"
-
-            conda activate $conda_envs.CLAIR3
-
             $tools.PYPY $tools.CLAIR3/clair3.py SelectHetSnp
                 --vcf_fn $input.vcf.gz
                 --split_folder $output.dir
@@ -313,10 +236,6 @@ select_het_snps = {
             bgzip -c $output.dir/${chr}.vcf > $output.vcf.gz
 
             tabix $output.vcf.gz
-
-            conda deactivate
-
-            unset __conda_setup
         """
     }
 }
@@ -329,15 +248,6 @@ phase_contig = {
 
         def tmp_vcf = "${input.vcf.gz.prefix.prefix}.tmp.vcf"
         exec """
-                set -uo pipefail
-
-                export SHELL="/opt/homebrew/bin/bash"
-
-                __conda_setup="\$('/opt/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
-
-                eval "$__conda_setup"
-
-                conda activate $conda_envs.CLAIR3
 
                 echo "Using longphase for phasing"
 
@@ -372,14 +282,6 @@ get_qual_filter = {
     exec """
         set -uo pipefail
 
-        export SHELL="/opt/homebrew/bin/bash"
-
-        __conda_setup="\$('/opt/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
-
-        eval "$__conda_setup"
-
-        conda activate $conda_envs.CLAIR3
-
         echo "[INFO] 5/7 Select candidates for full-alignment calling"
 
         bgzip -fdc $input.vcf.gz |
@@ -390,10 +292,6 @@ get_qual_filter = {
                 --platform ont 
 
         mv $output.dir/qual $output.vcf
-
-        conda deactivate
-
-        unset __conda_setup
     """
 }
 
@@ -414,14 +312,6 @@ create_candidates = {
         exec """
             set -uo pipefail
 
-            export SHELL="/opt/homebrew/bin/bash"
-
-            __conda_setup="\$('/opt/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
-
-            eval "$__conda_setup"
-
-            conda activate $conda_envs.CLAIR3
-
             $tools.PYPY $tools.CLAIR3/clair3.py SelectCandidates
                 --pileup_vcf_fn $input.vcf.gz
                 --split_folder $output.dir
@@ -441,11 +331,6 @@ create_candidates = {
                     mv -v \$i \${i}.bed;
                 fi
             done
-
-            conda deactivate
-
-            unset __conda_setup
-
         """
     }
 }
@@ -457,14 +342,6 @@ evaluate_candidates = {
     produce("${opts.sample}.${bed_prefix}.full_alignment.vcf") {
         exec """
             set -uo pipefail
-
-            export SHELL="/opt/homebrew/bin/bash"
-
-            __conda_setup="\$('/opt/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
-
-            eval "$__conda_setup"
-
-            conda activate $conda_envs.CLAIR3
 
             echo "[INFO] 6/7 Call low-quality variants using full-alignment model"
 
@@ -484,10 +361,6 @@ evaluate_candidates = {
                 --indel_min_af $calling.indel_min_af
                 --platform ont 
                 --phased_vcf_fn $input.vcf.gz
-
-            conda deactivate
-
-            unset __conda_setup
         """
     }
 }
