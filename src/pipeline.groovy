@@ -30,7 +30,7 @@ input_pattern = '%' + by_extension*.key[0]
 
 // to make pipeline generic to work for either fast5 or blow5,
 // define virtual file extentions 'x5' that can map to either
-filetype x5 : ['blow5','fast5','pod5']
+filetype x5 : ['pod5', 'blow5','fast5']
 
 Map params = model.params
 
